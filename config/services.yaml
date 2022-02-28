@@ -3,7 +3,8 @@
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
-parameters:
+imports:
+    - { resource: parameters.yaml }
 
 services:
     # default configuration for services in *this* file
@@ -26,6 +27,6 @@ services:
     SpotifyWebAPI\SpotifyWebAPI: ~
     SpotifyWebAPI\Session:
         arguments:
-            $clientId: '559605f8aa7a4b229657cca18acfc232'
-            $clientSecret: '980f86c0ee7f4501876c3ea61f51d8b1'
-            $redirectUri: 'https://127.0.0.1:8000/callback'
+            $clientId: '%spotify_client_id%'
+            $clientSecret: '%spotify_client_secret%'
+            $redirectUri: '%spotify_redirect_url%'
