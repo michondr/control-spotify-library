@@ -80,6 +80,9 @@
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
     },
+    "jwilsson/spotify-web-api-php": {
+        "version": "5.0.3"
+    },
     "laminas/laminas-code": {
         "version": "4.5.1"
     },

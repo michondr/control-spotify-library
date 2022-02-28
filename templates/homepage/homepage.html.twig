@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <main>
+        {% include '_sidebar.html.twig' with {userPlaylists: userPlaylists} only %}
+    </main>
+{#    <h2>display name: {{ userName }}</h2>#}
+
+{#    {% for name, playlist in userPlaylists %}#}
+{#        <h3>{{ name }}</h3>#}
+{#        {% for track in playlist %}#}
+{#            <p>{{ track.artists[0].name }} - {{ track.name }}</p>#}
+{#        {% endfor %}#}
+{#    {% endfor %}#}
+
+{% endblock %}

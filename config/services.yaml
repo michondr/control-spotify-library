@@ -22,3 +22,10 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    SpotifyWebAPI\SpotifyWebAPI: ~
+    SpotifyWebAPI\Session:
+        arguments:
+            $clientId: '559605f8aa7a4b229657cca18acfc232'
+            $clientSecret: '980f86c0ee7f4501876c3ea61f51d8b1'
+            $redirectUri: 'https://127.0.0.1:8000/callback'
