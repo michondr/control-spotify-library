@@ -2,16 +2,16 @@
 
 {% block body %}
 
-    <main>
-        {% include '_sidebar.html.twig' with {userPlaylists: userPlaylists} only %}
-    </main>
-{#    <h2>display name: {{ userName }}</h2>#}
+    <h1>Today a new life begins</h1>
 
-{#    {% for name, playlist in userPlaylists %}#}
-{#        <h3>{{ name }}</h3>#}
-{#        {% for track in playlist %}#}
-{#            <p>{{ track.artists[0].name }} - {{ track.name }}</p>#}
-{#        {% endfor %}#}
-{#    {% endfor %}#}
+    {% if isAccessTokenMissing %}
+        <p>
+            you\'re not authorized, go to <a href="{{ path('auth') }}">/auth</a> to authorize
+        </p>
+    {% endif %}
+
+    {{ dump(getUserInfo()) }}
 
 {% endblock %}
+
+{#<div class="d-flex flex-column">#}
