@@ -29,14 +29,7 @@ class HomepageController extends AbstractController
     #[Route(path: '/', name: 'homepage')]
     public function homepageAction(): Response
     {
-        $accessToken = $this->requestStack->getSession()->get(SpotifyRepository::SPOTIFY_ACCESS_TOKEN);
-
-        return $this->render(
-            'homepage/homepage.html.twig',
-            [
-                'isAccessTokenMissing' => $accessToken === null,
-            ]
-        );
+        return $this->render('homepage/homepage.html.twig',);
     }
 
     #[Route(path: '/logout', name: 'logout')]

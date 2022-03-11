@@ -4,6 +4,26 @@
 
     <h1>This is your library</h1>
 
-    <p>... nothing yet but will be soon</p>
+    <div class="row">
+        {% for playlist in playlists %}
+            <div class="col-3">
+                <div class="card mb-4">
+                    {% if playlist.images[0] is defined %}
+                        <img src="{{ playlist.images[0].url }}" class="card-img-top" alt="...">
+                    {% endif %}
+                    <div class="card-body bg-dark text-light">
+                        <h5 class="card-title">{{ playlist.name }}</h5>
+                        <p class="card-text">By {{ playlist.owner.display_name }}</p>
+                        <p class="card-text">Description: {{ playlist.description }}</p>
+                        <p class="card-text text-right">{{ playlist.tracks.total }} tracks</p>
+                        <div class="row">
+                            <div class="col-6"><a class="btn d-block btn-primary" href="{{ path('library.playlist', {'playlistId': playlist.id}) }}">View</a></div>
+                            <div class="col-6"><a class="btn d-block btn-secondary" href="{{ playlist.external_urls.spotify }}" target="_blank">View in Spotify</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 
 {% endblock %}

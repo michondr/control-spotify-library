@@ -4,14 +4,5 @@
 
     <h1>Today a new life begins</h1>
 
-    {% if isAccessTokenMissing %}
-        <p>
-            you\'re not authorized, go to <a href="{{ path('auth') }}">/auth</a> to authorize
-        </p>
-    {% endif %}
-
-    {{ dump(getUserInfo()) }}
 
 {% endblock %}
-
-{#<div class="d-flex flex-column">#}

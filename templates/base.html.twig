@@ -22,6 +22,9 @@
 <body>
 
 <main>
+    {% if not isUserLoggedInSpotify() %}
+        {% include '_login_modal.html.twig' %}
+    {% endif %}
     <div class="left-sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark">
         {% include '_sidebar.html.twig' %}
     </div>

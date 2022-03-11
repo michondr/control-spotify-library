@@ -7,13 +7,15 @@
 <hr>
 <div class="nav nav-pills flex-column">
     <span class="nav-item">
-        <a href="{{ path('homepage') }}" class="nav-link active" aria-current="page">
+        <a href="{{ path('homepage') }}" class="nav-link {% if app.request.pathInfo == path('homepage') %}active{% else %}text-white{% endif %}"
+           aria-current="page">
             <i class="bi bi-house px-1"></i>
             Home
         </a>
     </span>
     <span>
-        <a href="{{ path('library') }}" class="nav-link text-white">
+        <a href="{{ path('library') }}"
+           class="nav-link {% if app.request.pathInfo starts with path('library') %}active{% else %}text-white{% endif %}">
             <i class="bi bi-music-note-list px-1"></i>
             Library
         </a>
@@ -22,40 +24,81 @@
 <hr>
 <div class="nav nav-pills mb-auto overflow-auto">
     <div class="d-flex flex-column">
-        {% for playlist in getPlaylists() %}
+        {% for i in 1..40 %}
             <li>
-                <a href="{{ playlist.external_urls.spotify }}" target="_blank" class="nav-link text-white">
+                <a href="#" class="nav-link text-white">
                     <i class="bi bi-grid px-1"></i>
-                    {{ playlist.name }}
+                    tag {{ i }}
                 </a>
             </li>
         {% endfor %}
-        {#        {% for i in 1..10 %} #}
-        {#            <li> #}
-        {#                <a href="" target="_blank" class="nav-link text-white"> #}
-        {#                    <i class="bi bi-grid px-1"></i> #}
-        {#                    foo #}
-        {#                </a> #}
-        {#            </li> #}
-        {#        {% endfor %} #}
+    </div>
+</div>
+<hr>
+<div class="nav nav-pills">
+    {% set info = getCurrentPlayback() %}
+
+    <div class="row">
+        <div class="col">
+            <span class="small">{{ info.device.name }}</span>
+            {% if info.is_playing %}
+                <i class="bi bi-play"></i>
+            {% else %}
+                <i class="bi bi-pause"></i>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <h5 class="card-title">{{ info.item.name }}</h5>
+        <div class="row">
+            <div class="col-auto">
+                {% if info.item.album.images[0] is defined %}
+                    <img src="{{ info.item.album.images[0].url }}" width="80" alt="album image">
+                {% else %}
+                    <div style="width: 200px; height: 200px"></div>
+                {% endif %}
+            </div>
+            <div class="col">
+                <div class="row">
+                    <div class="col">
+                        <h6 class="card-title">
+                            {% for artist in info.item.artists %}
+                                <a href="{{ artist.external_urls.spotify }}"
+                                   target="_blank">{{ artist.name }}</a>{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </h6>
+
+                        <div class="card-text small text-muted">{{ info.item.album.name }}</div>
+                        <div class="card-text small text-muted">{{ info.item.album.release_date }}</div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 </div>
 <hr>
 <div class="dropdown">
-    {% set user = getUserInfo() %}
+    {% if isUserLoggedInSpotify() %}
+        {% set user = getUserInfo() %}
 
-    {% if user.display_name is defined %}
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown"
-           aria-expanded="false">
-            <img src="{{ user.images[0].url }}" alt="" width="32" height="32" class="rounded-circle me-2">
-            <strong>{{ user.display_name }}</strong>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-            <li><a class="dropdown-item" target="_blank" href="{{ user.external_urls.spotify }}">Spotify Profile</a></li>
-            <li>
-                <hr class="dropdown-divider">
-            </li>
-            <li><a class="dropdown-item" href="{{ path('logout') }}">Sign out</a></li>
-        </ul>
+        {% if user.display_name is defined %}
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown"
+               aria-expanded="false">
+                <img src="{{ user.images[0].url }}" alt="" width="32" height="32" class="rounded-circle me-2">
+                <strong>{{ user.display_name }}</strong>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                <li><a class="dropdown-item" target="_blank" href="{{ user.external_urls.spotify }}">Spotify Profile</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="{{ path('logout') }}">Sign out</a></li>
+            </ul>
+        {% endif %}
     {% endif %}
 </div>

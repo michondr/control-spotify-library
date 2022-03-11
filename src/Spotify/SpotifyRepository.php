@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace App\Spotify;
 
 use App\Spotify\Exception\SpotifyNeedsAuthorizationException;
+use JetBrains\PhpStorm\ArrayShape;
 use SpotifyWebAPI\SpotifyWebAPI;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -27,6 +28,13 @@ class SpotifyRepository
         return $this->api->me();
     }
 
+    public function getCurrentPlayback(): object
+    {
+        $this->authenticateApi();
+
+        return $this->api->getMyCurrentPlaybackInfo();
+    }
+
     public function getPlaylists(): array
     {
         $this->authenticateApi();
@@ -35,6 +43,20 @@ class SpotifyRepository
         usort($playlists, fn($a, $b) => $a->name > $b->name);
 
         return $playlists;
+    }
+
+    public function getPlaylist(string $playlistId): object
+    {
+        $this->authenticateApi();
+
+        return $this->api->getPlaylist($playlistId, ['limit' => 200]);
+    }
+
+    public function getTrack(string $songId): object
+    {
+        $this->authenticateApi();
+
+        return $this->api->getTrack($songId);
     }
 
     private function authenticateApi()

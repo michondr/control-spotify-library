@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <h1>{{ track.name }}</h1>
+    <h6 class="text-muted">Track</h6>
+
+    <div class="card mb-4">
+        <div class="card-body bg-dark text-light">
+            <h5 class="card-title">{{ track.name }}</h5>
+            <div class="row">
+                <div class="col-auto">
+                    {% if track.album.images[0] is defined %}
+                        <img src="{{ track.album.images[0].url }}" width="200" alt="album image">
+                    {% else %}
+                        <div style="width: 200px; height: 200px"></div>
+                    {% endif %}
+                </div>
+                <div class="col">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="card-title">
+                                {% for artist in track.artists %}
+                                    <a href="{{ artist.external_urls.spotify }}"
+                                       target="_blank">{{ artist.name }}</a>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </h6>
+
+                            <p class="card-text">Popularity {{ track.popularity }}</p>
+                            <p class="card-text">Duration {{ (track.duration_ms/1000/60)|number_format(2) }} min</p>
+                            <p class="card-text">Album {{ track.album.name }} ({{ track.album.release_date }})</p>
+
+                        </div>
+
+                        <div class="col">
+                            tags:
+                            {% for i in 1..10 %}
+                                tag {{ i }}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    {{ dump(track) }}
+
+{% endblock %}
