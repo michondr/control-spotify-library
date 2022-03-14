@@ -4,6 +4,9 @@ declare(strict_types = 1);
 
 namespace App\Controller\Homepage;
 
+use App\Entity\User\User;
+use App\Entity\User\UserAuthenticator;
+use App\Entity\User\UserRepository;
 use App\Spotify\SpotifyRepository;
 use SpotifyWebAPI\Session;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,7 +24,10 @@ class HomepageController extends AbstractController
 
     public function __construct(
         private Session $session,
-        private RequestStack $requestStack
+        private RequestStack $requestStack,
+        private SpotifyRepository $spotifyRepository,
+        private UserRepository $userRepository,
+        private UserAuthenticator $userAuthenticator
     )
     {
     }
@@ -86,6 +92,20 @@ class HomepageController extends AbstractController
 
         $this->requestStack->getSession()->set(SpotifyRepository::SPOTIFY_ACCESS_TOKEN, $accessToken);
         $this->requestStack->getSession()->set(SpotifyRepository::SPOTIFY_REFRESH_TOKEN, $refreshToken);
+
+        $spotifyUser = $this->spotifyRepository->getUserInfo();
+        $name = $spotifyUser->id;
+
+        $user = $this->userRepository->findByName($name);
+
+        if ($user === null) {
+            $user = new User($name);
+        }
+
+        $user->setLastLoggedInAt(new \DateTimeImmutable());
+
+        $this->userRepository->save($user);
+        $this->userAuthenticator->authenticateUser($user);
 
         return $this->redirectToRoute('homepage');
     }

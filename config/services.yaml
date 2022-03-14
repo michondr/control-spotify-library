@@ -30,3 +30,6 @@ services:
             $clientId: '%spotify_client_id%'
             $clientSecret: '%spotify_client_secret%'
             $redirectUri: '%spotify_redirect_url%'
+
+
+    App\Entity\User\UserAuthenticator: ~
