@@ -4,55 +4,58 @@ declare(strict_types = 1);
 
 namespace App\Controller\Library;
 
+use App\Entity\Tag\TagFacade;
+use App\Entity\Tag\TagRepository;
+use App\Entity\Track\TrackRepository;
 use App\Spotify\SpotifyRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Uid\Uuid;
 
 class LibraryController extends AbstractController
 {
 
     public function __construct(
+        private TagFacade $tagFacade,
+        private TagRepository $tagRepository,
         private SpotifyRepository $spotifyRepository
+
     )
     {
     }
 
-    #[Route(path: '/library', name: 'library')]
-    public function listLibraryAction(): Response
+    #[Route(path: '/tags', name: 'tags')]
+    public function listTagAction(): Response
     {
-        $playlists = $this->spotifyRepository->getPlaylists();
-
         return $this->render(
-            'library/library.html.twig',
+            'tag/list.html.twig',
             [
-                'playlists' => $playlists,
+                'tags' => $this->tagFacade->getUserTags(),
             ]
         );
     }
 
-    #[Route(path: '/library/playlist/{playlistId}', name: 'library.playlist')]
-    public function listPlaylistAction(string $playlistId): Response
+    #[Route(path: '/tags/{id}', name: 'tags.detail')]
+    public function detailTagAction(string $id): Response
     {
-        $playlist = $this->spotifyRepository->getPlaylist($playlistId);
+        $id = Uuid::fromString($id);
 
         return $this->render(
-            'library/playlist.html.twig',
+            'tag/detail.html.twig',
             [
-                'playlist' => $playlist,
+                'tag' => $this->tagRepository->getById($id),
             ]
         );
     }
 
-    #[Route(path: '/library/track/{trackId}', name: 'library.track')]
+    #[Route(path: '/track/{trackId}', name: 'track')]
     public function listSongAction(string $trackId): Response
     {
-        $track = $this->spotifyRepository->getTrack($trackId);
-
         return $this->render(
             'library/track.html.twig',
             [
-                'track' => $track,
+                'track' => $this->spotifyRepository->getTrack($trackId),
             ]
         );
     }

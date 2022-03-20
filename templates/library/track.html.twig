@@ -33,10 +33,41 @@
                         </div>
 
                         <div class="col">
-                            tags:
-                            {% for i in 1..10 %}
-                                tag {{ i }}
-                            {% endfor %}
+                            <table class="table">
+                                <tbody>
+                                {% for userTag in getUserTags() %}
+                                    <tr>
+                                        {% if userTag.tracks.hasTrackBySpotifyId(track.id) %}
+                                            <th scope="row">
+                                                <a href="{{ path('track.remove_tag', {'trackId': track.id, 'tagId': userTag.id}) }}">
+                                                    <i class="bi bi-toggle2-on text-success"></i>
+                                                </a>
+                                            </th>
+                                        {% else %}
+                                            <th scope="row">
+                                                <a href="{{ path('track.add_tag', {'trackId': track.id, 'tagId': userTag.id}) }}">
+                                                    <i class="bi bi-toggle2-off text-danger"></i>
+                                                </a>
+                                            </th>
+                                        {% endif %}
+                                        <td>
+                                            <a target="_blank" href="{{ path('tags.detail', {'id': userTag.id}) }}">{{ userTag.name }}</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <form action="{{ path('track.add_new_tag', {'trackId': track.id}) }}">
+                                            <input type="text" name="tagName" placeholder="Input a new tag name"/>
+                                            <input type="submit"/>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
                         </div>
                     </div>
 
@@ -46,6 +77,5 @@
             </div>
         </div>
     </div>
-    {{ dump(track) }}
 
 {% endblock %}

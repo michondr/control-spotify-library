@@ -103,6 +103,7 @@ class HomepageController extends AbstractController
         }
 
         $user->setLastLoggedInAt(new \DateTimeImmutable());
+        $user->setAccessToken($accessToken);
 
         $this->userRepository->save($user);
         $this->userAuthenticator->authenticateUser($user);

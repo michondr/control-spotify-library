@@ -40,7 +40,7 @@ class SpotifyRepository
         $this->authenticateApi();
 
         $playlists = $this->api->getMyPlaylists(['limit' => 50])->items;
-        usort($playlists, fn($a, $b) => $a->name > $b->name);
+        usort($playlists, fn($a, $b) => $a->name <=> $b->name);
 
         return $playlists;
     }
@@ -52,6 +52,26 @@ class SpotifyRepository
         return $this->api->getPlaylist($playlistId, ['limit' => 200]);
     }
 
+    public function getPlaylistTracks(string $playlistId): array
+    {
+        $this->authenticateApi();
+        $playlistTracks = [];
+        $offset = 0;
+
+        while (true) {
+            $playlistTracksResponse = $this->api->getPlaylistTracks($playlistId, ['offset' => $offset]);
+            $playlistTracks = array_merge($playlistTracks, $playlistTracksResponse->items);
+
+            if ($playlistTracksResponse->total > count($playlistTracks)) {
+                $offset += count($playlistTracksResponse->items);
+            } else {
+                break;
+            }
+        }
+
+        return $playlistTracks;
+    }
+
     public function getTrack(string $songId): object
     {
         $this->authenticateApi();
@@ -61,13 +81,15 @@ class SpotifyRepository
 
     private function authenticateApi()
     {
-        $accessToken = $this->requestStack->getSession()->get(self::SPOTIFY_ACCESS_TOKEN);
-        $refreshToken = $this->requestStack->getSession()->get(self::SPOTIFY_REFRESH_TOKEN);
+        if ($this->requestStack->getMainRequest() !== null) {
+            $accessToken = $this->requestStack->getSession()->get(self::SPOTIFY_ACCESS_TOKEN);
+            $refreshToken = $this->requestStack->getSession()->get(self::SPOTIFY_REFRESH_TOKEN);
 
-        if (is_string($accessToken) === false) {
-            throw new SpotifyNeedsAuthorizationException();
+            if (is_string($accessToken) === false) {
+                throw new SpotifyNeedsAuthorizationException();
+            }
+
+            $this->api->setAccessToken($accessToken);
         }
-
-        $this->api->setAccessToken($accessToken);
     }
 }

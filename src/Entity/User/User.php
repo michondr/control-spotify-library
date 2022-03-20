@@ -25,6 +25,9 @@ class User implements UserInterface
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $lastLoggedInAt;
 
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $accessToken;
+
     public function __construct(
         string $name
     )
@@ -33,6 +36,7 @@ class User implements UserInterface
         $this->name = $name;
         $this->createdAt = new \DateTimeImmutable();
         $this->lastLoggedInAt = new \DateTimeImmutable();
+        $this->accessToken = null;
     }
 
     public function getId(): Uuid
@@ -58,6 +62,16 @@ class User implements UserInterface
     public function setLastLoggedInAt(\DateTimeImmutable $lastLoggedIn): void
     {
         $this->lastLoggedInAt = $lastLoggedIn;
+    }
+
+    public function getAccessToken(): ?string
+    {
+        return $this->accessToken;
+    }
+
+    public function setAccessToken(string $accessToken): void
+    {
+        $this->accessToken = $accessToken;
     }
 
     /**

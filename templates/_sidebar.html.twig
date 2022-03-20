@@ -14,8 +14,8 @@
         </a>
     </span>
     <span>
-        <a href="{{ path('library') }}"
-           class="nav-link {% if app.request.pathInfo starts with path('library') %}active{% else %}text-white{% endif %}">
+        <a href="{{ path('tags') }}"
+           class="nav-link {% if app.request.pathInfo starts with path('tags') %}active{% else %}text-white{% endif %}">
             <i class="bi bi-music-note-list px-1"></i>
             Library
         </a>
@@ -24,11 +24,11 @@
 <hr>
 <div class="nav nav-pills mb-auto overflow-auto">
     <div class="d-flex flex-column">
-        {% for i in 1..40 %}
+        {% for tag in getUserTags() %}
             <li>
-                <a href="#" class="nav-link text-white">
+                <a href="{{ path('tags.detail', {'id': tag.id}) }}" class="nav-link text-white">
                     <i class="bi bi-grid px-1"></i>
-                    tag {{ i }}
+                    {{ tag.name }}
                 </a>
             </li>
         {% endfor %}
@@ -52,7 +52,9 @@
         </div>
 
         <div class="row">
-            <h5 class="card-title">{{ info.item.name }}</h5>
+            <h5 class="card-title">
+                <a href="{{ path('track', {'trackId': info.item.id }) }}">{{ info.item.name }}</a>
+            </h5>
             <div class="row">
                 <div class="col-auto">
                     {% if info.item.album.images[0] is defined %}

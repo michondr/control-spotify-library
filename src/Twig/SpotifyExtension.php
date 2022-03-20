@@ -25,6 +25,7 @@ class SpotifyExtension extends AbstractExtension
     {
         return [
             new TwigFunction('getPlaylists', [$this, 'getPlaylists']),
+            new TwigFunction('getTrack', [$this, 'getTrack']),
             new TwigFunction('getUserInfo', [$this, 'getUserInfo']),
             new TwigFunction('getCurrentPlayback', [$this, 'getCurrentPlayback']),
             new TwigFunction('isUserLoggedInSpotify', [$this, 'isUserLoggedInSpotify']),
@@ -50,6 +51,15 @@ class SpotifyExtension extends AbstractExtension
             return $this->spotifyRepository->getPlaylists();
         } catch (SpotifyNeedsAuthorizationException) {
             return [];
+        }
+    }
+
+    public function getTrack(string $spotifyId): object
+    {
+        try {
+            return $this->spotifyRepository->getTrack($spotifyId);
+        } catch (SpotifyNeedsAuthorizationException) {
+            return new \StdClass;
         }
     }
 
