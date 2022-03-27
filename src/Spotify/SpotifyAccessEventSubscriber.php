@@ -33,13 +33,18 @@ class SpotifyAccessEventSubscriber implements EventSubscriberInterface
 
     public function validateSpotifyAccess(RequestEvent $event)
     {
-        $uri = $event->getRequest()->getUri();
+        $request = $event->getRequest();
 
-        if (str_ends_with($uri, '/auth')) {
-            return;
-        }
+        $isPublicRoute = in_array(
+            $request->attributes->get('_route'),
+            [
+                'auth',
+                'callback',
+                'homepage',
+            ]
+        );
 
-        if (str_contains($uri, '/callback?')) {
+        if ($isPublicRoute) {
             return;
         }
 

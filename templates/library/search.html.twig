@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <h1>Search</h1>
+    <h6 class="text-muted">Search your library</h6>
+
+    <div class="card mb-4">
+        <div class="card-body bg-dark text-light">
+            <h5 class="card-title">Search for a song by its name</h5>
+            {{ form(searchByNameForm) }}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body bg-dark text-light">
+            <h5 class="card-title">Search for a song by its tags</h5>
+            {{ form(searchByTagsForm) }}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body bg-dark text-light">
+            <h5 class="card-title">Result ({{ resultTrackList|length }} songs)</h5>
+            {% if resultTrackList is not empty %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <a class="btn btn-primary" href="{{ path('play.queue', {'tracks': resultTrackList.getSpotifyIds()}) }}">
+                            Add all to queue
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="row">
+                {% for track in resultTrackList %}
+                    {% include 'library/_track_card.html.twig' with {track: track, tagId: null} only %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

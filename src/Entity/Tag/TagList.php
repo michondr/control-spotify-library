@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @extends \Doctrine\Common\Collections\ArrayCollection<int, Tag>
+ * @method Tag[] getIterator
+ * @method Tag first()
  */
 class TagList extends ArrayCollection
 {
