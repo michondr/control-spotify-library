@@ -6,6 +6,7 @@ namespace App\Controller\Library;
 
 use App\Entity\Tag\TagFacade;
 use App\Entity\Tag\TagRepository;
+use App\Entity\Track\TrackFacade;
 use App\Entity\Track\TrackRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,9 +18,10 @@ use Webmozart\Assert\Assert;
 class TagController extends AbstractController
 {
     public function __construct(
-        private TrackRepository $trackRepository,
         private TagRepository $tagRepository,
         private TagFacade $tagFacade,
+        private TrackRepository $trackRepository,
+        private TrackFacade $trackFacade,
     )
     {
     }
@@ -29,7 +31,7 @@ class TagController extends AbstractController
     {
         $tagName = $request->query->get('tagName');
 
-        $track = $this->trackRepository->findById($trackId);
+        $track = $this->trackFacade->getTrackIfNotExists($trackId);
         $tag = $this->tagFacade->getTagIfNotExists($tagName);
 
         Assert::notNull($track);
@@ -44,7 +46,7 @@ class TagController extends AbstractController
     #[Route(path: '/track/{trackId}/add-tag/{tagId}', name: 'track.add_tag')]
     public function addTrackToTagAction(Request $request, string $trackId, string $tagId): Response
     {
-        $track = $this->trackRepository->findById($trackId);
+        $track = $this->trackFacade->getTrackIfNotExists($trackId);
         $tag = $this->tagRepository->getById(Uuid::fromString($tagId));
 
         Assert::notNull($track);
