@@ -28,7 +28,7 @@ class SpotifyRepository
         return $this->api->me();
     }
 
-    public function getCurrentPlayback(): object
+    public function getCurrentPlayback(): ?object
     {
         $this->authenticateApi();
 

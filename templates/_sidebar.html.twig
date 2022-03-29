@@ -45,56 +45,55 @@
 <div class="nav nav-pills">
     {% set info = getCurrentPlayback() %}
 
-    <div class="row">
-        <div class="col">
-            <span class="small">{{ info.device.name }}</span>
-            {% if info.is_playing %}
-                <i class="bi bi-play"></i>
-            {% else %}
-                <i class="bi bi-pause"></i>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="row">
-        <h5 class="card-title">
-            <a href="{{ path('track', {'trackId': info.item.id }) }}">{{ info.item.name }}</a>
-        </h5>
+    {% if info is not null %}
         <div class="row">
-            <div class="col-auto">
-                {% if info.item.album.images[0] is defined %}
-                    <img src="{{ info.item.album.images[0].url }}" width="80" alt="album image">
+            <div class="col">
+                <span class="small">{{ info.device.name }}</span>
+                {% if info.is_playing %}
+                    <i class="bi bi-play"></i>
                 {% else %}
-                    <div style="width: 200px; height: 200px"></div>
+                    <i class="bi bi-pause"></i>
                 {% endif %}
             </div>
-            <div class="col">
-                <div class="row">
-                    <div class="col">
-                        <h6 class="card-title">
-                            {% for artist in info.item.artists %}
-                                <a href="{{ artist.external_urls.spotify }}"
-                                   target="_blank">{{ artist.name }}</a>{% if not loop.last %}, {% endif %}
-                            {% endfor %}
-                        </h6>
-
-                        <div class="card-text small text-muted">{{ info.item.album.name }}</div>
-                        <div class="card-text small text-muted">{{ info.item.album.release_date }}</div>
-
-                    </div>
-                </div>
-
-            </div>
-
         </div>
 
-    </div>
+        <div class="row">
+            <h5 class="card-title">
+                <a href="{{ path('track', {'trackId': info.item.id }) }}">{{ info.item.name }}</a>
+            </h5>
+            <div class="row">
+                <div class="col-auto">
+                    {% if info.item.album.images[0] is defined %}
+                        <img src="{{ info.item.album.images[0].url }}" width="80" alt="album image">
+                    {% else %}
+                        <div style="width: 200px; height: 200px"></div>
+                    {% endif %}
+                </div>
+                <div class="col">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="card-title">
+                                {% for artist in info.item.artists %}
+                                    <a href="{{ artist.external_urls.spotify }}"
+                                       target="_blank">{{ artist.name }}</a>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </h6>
+
+                            <div class="card-text small text-muted">{{ info.item.album.name }}</div>
+                            <div class="card-text small text-muted">{{ info.item.album.release_date }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
 </div>
 <hr>
 <div class="dropdown">
     {% set user = getUserInfo() %}
 
-    {% if user.display_name is defined %}
+    {% if user is not null %}
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown"
            aria-expanded="false">
             <img src="{{ user.images[0].url }}" alt="" width="32" height="32" class="rounded-circle me-2">

@@ -63,21 +63,21 @@ class SpotifyExtension extends AbstractExtension
         }
     }
 
-    public function getUserInfo(): object
+    public function getUserInfo(): ?object
     {
         try {
             return $this->spotifyRepository->getUserInfo();
         } catch (SpotifyNeedsAuthorizationException) {
-            return new \StdClass;
+            return null;
         }
     }
 
-    public function getCurrentPlayback(): object
+    public function getCurrentPlayback(): ?object
     {
         try {
             return $this->spotifyRepository->getCurrentPlayback();
         } catch (SpotifyNeedsAuthorizationException) {
-            return new \StdClass;
+            return null;
         }
     }
 }
