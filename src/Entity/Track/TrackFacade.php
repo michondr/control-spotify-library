@@ -43,6 +43,20 @@ class TrackFacade
         return $track;
     }
 
+    /**
+     * @param TagList $tagList
+     * @return TrackList
+     *
+     * optimize to:
+     *
+     *  SELECT tag_to_track.track_id, COUNT(tag_to_track.tag_id)
+        FROM tag_to_track
+            JOIN tag ON tag.id = tag_to_track.tag_id
+            JOIN track ON tag_to_track.track_id = track.id
+        WHERE tag.name IN ('elektro', 'pop', 'rock')
+        GROUP BY tag_to_track.track_id
+        HAVING COUNT(tag_to_track.tag_id) = 3
+     */
     public function getTrackListByTags(TagList $tagList): TrackList
     {
         $trackList = $tagList->first()->getTracks();
