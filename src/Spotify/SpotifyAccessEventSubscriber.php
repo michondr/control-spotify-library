@@ -35,26 +35,18 @@ class SpotifyAccessEventSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        $isPublicRoute = in_array(
-            $request->attributes->get('_route'),
-            [
-                'auth',
-                'callback',
-                'homepage',
-            ]
-        );
+        $isMainContext = $request->attributes->get('_firewall_context') === 'security.firewall.map.context.main';
+        $isHomepage = str_starts_with($request->attributes->get('_controller'), 'App\Controller\Homepage\HomepageController');
 
-        if ($isPublicRoute) {
-            return;
-        }
-
-        try {
-            $this->spotifyRepository->getUserInfo();
-        } catch (SpotifyNeedsAuthorizationException) {
-            $event->setResponse(new RedirectResponse($this->urlGenerator->generate('auth')));
-        } catch (SpotifyWebAPIException $e) {
-            if ($e->getMessage() === 'The access token expired') {
+        if ($isMainContext && $isHomepage === false) {
+            try {
+                $this->spotifyRepository->getUserInfo();
+            } catch (SpotifyNeedsAuthorizationException) {
                 $event->setResponse(new RedirectResponse($this->urlGenerator->generate('auth')));
+            } catch (SpotifyWebAPIException $e) {
+                if ($e->getMessage() === 'The access token expired') {
+                    $event->setResponse(new RedirectResponse($this->urlGenerator->generate('auth')));
+                }
             }
         }
     }

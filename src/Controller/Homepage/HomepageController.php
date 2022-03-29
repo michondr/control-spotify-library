@@ -8,6 +8,8 @@ use App\Entity\User\User;
 use App\Entity\User\UserAuthenticator;
 use App\Entity\User\UserRepository;
 use App\Spotify\SpotifyRepository;
+use App\Twig\FlashEnum;
+use Psr\Log\LoggerInterface;
 use SpotifyWebAPI\Session;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -27,7 +29,8 @@ class HomepageController extends AbstractController
         private RequestStack $requestStack,
         private SpotifyRepository $spotifyRepository,
         private UserRepository $userRepository,
-        private UserAuthenticator $userAuthenticator
+        private UserAuthenticator $userAuthenticator,
+        private LoggerInterface $logger,
     )
     {
     }
@@ -42,6 +45,7 @@ class HomepageController extends AbstractController
     public function invalidateAuthAction(): Response
     {
         $this->requestStack->getSession()->set(SpotifyRepository::SPOTIFY_ACCESS_TOKEN, null);
+        $this->userAuthenticator->logoutUser();
 
         return $this->redirectToRoute('homepage');
     }
@@ -59,11 +63,8 @@ class HomepageController extends AbstractController
         $options = [
             'code_challenge' => $challenge,
             'scope' => [
-                'playlist-read-private',
-                'user-library-read',
                 'user-read-private',
                 'playlist-read-private',
-                'user-read-recently-played',
                 'user-read-playback-state',
                 'user-modify-playback-state',
             ],
@@ -78,6 +79,13 @@ class HomepageController extends AbstractController
     {
         $state = $request->query->get('state');
         $authCode = $request->query->get('code');
+        $error = $request->query->get('error');
+
+        if ($error !== null) {
+            $this->addFlash(FlashEnum::DANGER, 'Authentication failed');
+
+            return $this->redirectToRoute('homepage');
+        }
 
         if ($state !== $this->requestStack->getSession()->get(self::STATE)) {
             return new Response('<body>State mismatch</body>', Response::HTTP_INTERNAL_SERVER_ERROR);

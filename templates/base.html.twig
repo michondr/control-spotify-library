@@ -25,10 +25,20 @@
     {% if not isUserLoggedInSpotify() %}
         {% include '_login_modal.html.twig' %}
     {% endif %}
-    <div class="left-sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark">
-        {% include '_sidebar.html.twig' %}
-    </div>
+    {% if isUserLoggedInSpotify() %}
+        <div class="left-sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark">
+            {% include '_sidebar.html.twig' %}
+        </div>
+    {% endif %}
     <div class="right-content d-flex flex-column p-3 bg-light">
+        {% for flashGroup, groupItems in app.flashes %}
+            {% for item in groupItems %}
+                <div class="alert alert-{{ flashGroup }}">
+                    {{ item }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
         {% block body %}{% endblock %}
     </div>
 </main>
