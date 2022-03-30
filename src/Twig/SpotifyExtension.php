@@ -59,8 +59,16 @@ class SpotifyExtension extends AbstractExtension
         try {
             return $this->spotifyRepository->getTrack($spotifyId);
         } catch (SpotifyNeedsAuthorizationException) {
-            return new \StdClass;
+            //pass
+        } catch (SpotifyWebAPIException $e) {
+            if ($e->getMessage() === 'non existing id') {
+                //pass
+            } else {
+                throw $e;
+            }
         }
+
+        return new \StdClass;
     }
 
     public function getUserInfo(): ?object
