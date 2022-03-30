@@ -6,6 +6,7 @@ namespace App\Twig;
 
 use App\Spotify\Exception\SpotifyNeedsAuthorizationException;
 use App\Spotify\SpotifyRepository;
+use Psr\Log\LoggerInterface;
 use SpotifyWebAPI\SpotifyWebAPIException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
@@ -16,7 +17,8 @@ class SpotifyExtension extends AbstractExtension
 
     public function __construct(
         private SpotifyRepository $spotifyRepository,
-        private RequestStack $requestStack
+        private RequestStack $requestStack,
+        private LoggerInterface $logger,
     )
     {
     }
@@ -75,9 +77,12 @@ class SpotifyExtension extends AbstractExtension
     {
         try {
             return $this->spotifyRepository->getUserInfo();
+        } catch (SpotifyWebAPIException $e) {
+            $this->logger->log('error', 'something unexpected', ['exception' => $e]);
         } catch (SpotifyNeedsAuthorizationException) {
-            return null;
         }
+
+        return null;
     }
 
     public function getCurrentPlayback(): ?object

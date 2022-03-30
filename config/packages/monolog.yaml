@@ -59,3 +59,7 @@ when@prod:
                 type: stream
                 channels: [deprecation]
                 path: php://stderr
+            sentry:
+                type: sentry
+                level: 'error'
+                hub_id: Sentry\State\HubInterface
