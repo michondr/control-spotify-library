@@ -2,16 +2,15 @@
 
 namespace App\Entity\Tag;
 
-use App\Entity\User\User;
+use App\Entity\Track\TrackRepository;
 use App\Entity\User\UserProvider;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 
 class TagFacade
 {
     public function __construct(
         private TagRepository $tagRepository,
         private UserProvider $userProvider,
+        private TrackRepository $trackRepository
     )
     {
     }
@@ -23,6 +22,16 @@ class TagFacade
         }
 
         return new TagList([]);
+    }
+
+    public function getUserTagsForTrack(string $trackSpotifyId): TagList
+    {
+        $user = $this->userProvider->getUser();
+        $track = $this->trackRepository->findById($trackSpotifyId);
+
+        return $track->getTags()->filter(
+            fn(Tag $tag) => $tag->getOwner()->getId()->equals($user->getId())
+        );
     }
 
     public function getTagIfNotExists(string $tagName): Tag
