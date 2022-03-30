@@ -10,6 +10,8 @@ use App\Controller\Library\SearchByTags\SearchByTagsFormRequest;
 use App\Controller\Library\SearchByTags\SearchByTagsFormType;
 use App\Entity\Track\TrackFacade;
 use App\Entity\Track\TrackList;
+use App\Spotify\Devices\PreferredDeviceProvider;
+use App\Twig\FlashEnum;
 use SpotifyWebAPI\SpotifyWebAPI;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -20,7 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class PlayController extends AbstractController
 {
     public function __construct(
-        private SpotifyWebAPI $spotifyWebAPI
+        private SpotifyWebAPI $spotifyWebAPI,
+        private PreferredDeviceProvider $preferredDeviceProvider,
     )
     {
     }
@@ -30,7 +33,16 @@ class PlayController extends AbstractController
     {
         $trackId = $request->query->get('track');
 
-        $this->spotifyWebAPI->play(options: ['uris' => ['spotify:track:' . $trackId]]);
+        $userDevices = $this->spotifyWebAPI->getMyDevices()->devices;
+        $preferredDevice = $this->preferredDeviceProvider->getPreferredDevice($userDevices);
+
+        if ($preferredDevice === null) {
+            $this->addFlash(FlashEnum::WARNING, 'You have no active device in Spotify. Open Spotify on your phone or computer.');
+
+            return $this->redirect($request->headers->get('referer'));
+        }
+
+        $this->spotifyWebAPI->play($preferredDevice->id, options: ['uris' => ['spotify:track:' . $trackId]]);
 
         return $this->redirect($request->headers->get('referer'));
     }

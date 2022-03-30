@@ -29,8 +29,7 @@ class HomepageController extends AbstractController
         private RequestStack $requestStack,
         private SpotifyRepository $spotifyRepository,
         private UserRepository $userRepository,
-        private UserAuthenticator $userAuthenticator,
-        private LoggerInterface $logger,
+        private UserAuthenticator $userAuthenticator
     )
     {
     }
