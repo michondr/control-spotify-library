@@ -63,7 +63,7 @@
             </h5>
             <div class="row">
                 <div class="col-auto">
-                    {% if info.item.album.images[0] is defined %}
+                    {% if info.item.album.images is defined and info.item.album.images is not empty %}
                         <img src="{{ info.item.album.images[0].url }}" width="80" alt="album image">
                     {% else %}
                         <div style="width: 200px; height: 200px"></div>
@@ -96,7 +96,11 @@
     {% if user is not null %}
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown"
            aria-expanded="false">
-            <img src="{{ user.images[0].url }}" alt="" width="32" height="32" class="rounded-circle me-2">
+            {% if user.images is not empty %}
+                <img src="{{ user.images[0].url }}" alt="" width="32" height="32" class="rounded-circle me-2">
+            {% else %}
+                <div style="width: 32px; height: 32px"></div>
+            {% endif %}
             <strong>{{ user.display_name }}</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">

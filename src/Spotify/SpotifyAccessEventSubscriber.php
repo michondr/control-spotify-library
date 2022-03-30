@@ -47,6 +47,9 @@ class SpotifyAccessEventSubscriber implements EventSubscriberInterface
                 if ($e->getMessage() === 'The access token expired') {
                     $event->setResponse(new RedirectResponse($this->urlGenerator->generate('auth')));
                 }
+                if($e->getMessage() === 'User not registered in the Developer Dashboard'){
+                    $event->setResponse(new RedirectResponse($this->urlGenerator->generate('homepage')));
+                }
             }
         }
     }

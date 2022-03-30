@@ -41,6 +41,12 @@ class HomepageController extends AbstractController
         return $this->render('homepage/homepage.html.twig',);
     }
 
+    #[Route(path: '/not-registered-in-dev-mode', name: 'no_dev_mode')]
+    public function noDevModeAction(): Response
+    {
+        return $this->render('homepage/noDevMode.html.twig',);
+    }
+
     #[Route(path: '/logout', name: 'logout')]
     public function invalidateAuthAction(): Response
     {
