@@ -11,6 +11,7 @@ use App\Spotify\SpotifyRepository;
 use App\Twig\FlashEnum;
 use Psr\Log\LoggerInterface;
 use SpotifyWebAPI\Session;
+use SpotifyWebAPI\SpotifyWebAPIAuthException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -96,10 +97,16 @@ class HomepageController extends AbstractController
             return new Response('<body>State mismatch</body>', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $this->session->requestAccessToken(
-            $authCode,
-            $this->requestStack->getSession()->get(self::VERIFIER)
-        );
+        try {
+            $this->session->requestAccessToken(
+                $authCode,
+                $this->requestStack->getSession()->get(self::VERIFIER)
+            );
+        } catch (SpotifyWebAPIAuthException $e) {
+            $this->addFlash(FlashEnum::DANGER, sprintf('Authentication failed, please try again (%s)', $e->getMessage()));
+
+            return $this->redirectToRoute('homepage');
+        }
 
         $accessToken = $this->session->getAccessToken();
         $refreshToken = $this->session->getRefreshToken();
