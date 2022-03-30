@@ -96,7 +96,7 @@
     {% if user is not null %}
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown"
            aria-expanded="false">
-            {% if user.images is not empty %}
+            {% if user.images is not empty and user.images[0].url is defined %}
                 <img src="{{ user.images[0].url }}" alt="" width="32" height="32" class="rounded-circle me-2">
             {% else %}
                 <div style="width: 32px; height: 32px"></div>
