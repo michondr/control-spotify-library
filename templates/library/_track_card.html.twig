@@ -1,7 +1,11 @@
 <div class="col-12">
     <div class="card mb-4">
         <div class="card-body bg-dark text-light">
-            <h5 class="card-title">{{ trackName }}</h5>
+            <h5 class="card-title">
+                <a href="{{ path('track', {'trackId': spotifyId} ) }}">
+                    {{ trackName }}
+                </a>
+            </h5>
 
             {% set spotifyTrack = getTrack(spotifyId) %}
 
@@ -10,11 +14,13 @@
             {% else %}
                 <div class="row">
                     <div class="col-auto">
-                        {% if spotifyTrack.album.images[1] is defined %}
-                            <img src="{{ spotifyTrack.album.images[1].url }}" width="200" alt="album image">
-                        {% else %}
-                            <div style="width: 200px; height: 200px"></div>
-                        {% endif %}
+                        <a href="{{ path('track', {'trackId': spotifyId} ) }}">
+                            {% if spotifyTrack.album.images[1] is defined %}
+                                <img src="{{ spotifyTrack.album.images[1].url }}" width="200" alt="album image">
+                            {% else %}
+                                <div style="width: 200px; height: 200px"></div>
+                            {% endif %}
+                        </a>
                     </div>
                     <div class="col">
                         <div class="row">
