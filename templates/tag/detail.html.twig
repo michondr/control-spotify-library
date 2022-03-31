@@ -5,6 +5,8 @@
     <h1>{{ tag.name }}</h1>
     <h6 class="text-muted">Tag with {{ tag.tracks|length }} songs</h6>
 
+    <a class="btn btn-danger" href="{{ path('tag.remove', {tagId: tag.id}) }}">Delete tag (songs will be unasigned and tag deleted)</a>
+
     <div class="row pt-3">
         {% for track in tag.tracks %}
             {% include 'library/_track_card.html.twig' with {track: track, tagId: tag.id} only %}

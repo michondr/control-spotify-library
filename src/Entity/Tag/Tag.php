@@ -85,4 +85,9 @@ class Tag
         }
     }
 
+    public function clearTracks()
+    {
+        $this->tracks = new TrackList([]);
+    }
+
 }

@@ -26,6 +26,20 @@ class TagController extends AbstractController
     {
     }
 
+    #[Route(path: '/tag/{tagId}/remove', name: 'tag.remove')]
+    public function removeTag(string $tagId): Response
+    {
+        $tag = $this->tagRepository->getById(Uuid::fromString($tagId));
+
+        Assert::notNull($tag);
+
+        $tag->clearTracks();
+        $this->tagRepository->save($tag);
+        $this->tagRepository->remove($tag);
+
+        return $this->redirectToRoute('homepage');
+    }
+
     #[Route(path: '/track/{trackId}/add-new-tag', name: 'track.add_new_tag')]
     public function addTrackToNewTagAction(Request $request, string $trackId): Response
     {

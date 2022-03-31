@@ -23,6 +23,12 @@ class TagRepository extends ServiceEntityRepository
         return $tag;
     }
 
+    public function remove(Tag $tag)
+    {
+        $this->getEntityManager()->remove($tag);
+        $this->getEntityManager()->flush();
+    }
+
     public function getById(Uuid $id): Tag
     {
         $tag = $this->find($id);
