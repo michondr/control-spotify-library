@@ -21,6 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class HomepageController extends AbstractController
 {
+    public const SPOTIFY_ACCESS_TOKEN = 'accessToken';
+    public const SPOTIFY_REFRESH_TOKEN = 'refreshToken';
 
     private const VERIFIER = 'verifier';
     private const STATE = 'state';
@@ -50,7 +52,7 @@ class HomepageController extends AbstractController
     #[Route(path: '/logout', name: 'logout')]
     public function invalidateAuthAction(): Response
     {
-        $this->requestStack->getSession()->set(SpotifyRepository::SPOTIFY_ACCESS_TOKEN, null);
+        $this->requestStack->getSession()->set(self::SPOTIFY_ACCESS_TOKEN, null);
         $this->userAuthenticator->logoutUser();
 
         return $this->redirectToRoute('homepage');
@@ -111,10 +113,10 @@ class HomepageController extends AbstractController
         $accessToken = $this->session->getAccessToken();
         $refreshToken = $this->session->getRefreshToken();
 
-        $this->requestStack->getSession()->set(SpotifyRepository::SPOTIFY_ACCESS_TOKEN, $accessToken);
-        $this->requestStack->getSession()->set(SpotifyRepository::SPOTIFY_REFRESH_TOKEN, $refreshToken);
+        $this->requestStack->getSession()->set(self::SPOTIFY_ACCESS_TOKEN, $accessToken);
+        $this->requestStack->getSession()->set(self::SPOTIFY_REFRESH_TOKEN, $refreshToken);
 
-        $spotifyUser = $this->spotifyRepository->getUserInfo();
+        $spotifyUser = $this->spotifyRepository->getUserInfo($accessToken);
         $name = $spotifyUser->id;
 
         $user = $this->userRepository->findByName($name);

@@ -4,26 +4,23 @@ declare(strict_types = 1);
 
 namespace App\Spotify;
 
+use App\Entity\User\UserProvider;
 use App\Spotify\Exception\SpotifyNeedsAuthorizationException;
-use JetBrains\PhpStorm\ArrayShape;
 use SpotifyWebAPI\SpotifyWebAPI;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class SpotifyRepository
 {
-    public const SPOTIFY_ACCESS_TOKEN = 'accessToken';
-    public const SPOTIFY_REFRESH_TOKEN = 'refreshToken';
 
     public function __construct(
         private SpotifyWebAPI $api,
-        private RequestStack $requestStack
+        private UserProvider $userProvider
     )
     {
     }
 
-    public function getUserInfo(): object
+    public function getUserInfo(?string $accessToken = null): object
     {
-        $this->authenticateApi();
+        $this->authenticateApi($accessToken);
 
         return $this->api->me();
     }
@@ -79,17 +76,16 @@ class SpotifyRepository
         return $this->api->getTrack($songId);
     }
 
-    private function authenticateApi()
+    private function authenticateApi(?string $accessToken = null)
     {
-        if ($this->requestStack->getMainRequest() !== null) {
-            $accessToken = $this->requestStack->getSession()->get(self::SPOTIFY_ACCESS_TOKEN);
-            $refreshToken = $this->requestStack->getSession()->get(self::SPOTIFY_REFRESH_TOKEN);
-
-            if (is_string($accessToken) === false) {
+        if ($accessToken === null) {
+            if ($this->userProvider->isUserLoggedIn() === false) {
                 throw new SpotifyNeedsAuthorizationException();
             }
 
-            $this->api->setAccessToken($accessToken);
+            $accessToken = $this->userProvider->getUser()->getAccessToken();
         }
+
+        $this->api->setAccessToken($accessToken);
     }
 }

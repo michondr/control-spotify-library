@@ -33,7 +33,7 @@
             {% endif %}
             <div class="row">
                 {% for track in resultTrackList %}
-                    {% include 'library/_track_card.html.twig' with {track: track, tagId: null} only %}
+                    {% include 'library/_track_card.html.twig' with {spotifyId: track.spotifyId, trackName: track.name, tagId: null} only %}
                 {% endfor %}
             </div>
         </div>

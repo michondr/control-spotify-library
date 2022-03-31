@@ -9,7 +9,6 @@ use App\Spotify\SpotifyRepository;
 use App\Spotify\SpotifyRepositoryCacheManager;
 use Psr\Log\LoggerInterface;
 use SpotifyWebAPI\SpotifyWebAPIException;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -18,7 +17,6 @@ class SpotifyExtension extends AbstractExtension
 
     public function __construct(
         private SpotifyRepository $spotifyRepository,
-        private RequestStack $requestStack,
         private LoggerInterface $logger,
         private SpotifyRepositoryCacheManager $spotifyRepositoryCacheManager,
     )
@@ -38,50 +36,49 @@ class SpotifyExtension extends AbstractExtension
 
     public function isUserLoggedInSpotify(): bool
     {
-        $accessToken = $this->requestStack->getSession()->get(SpotifyRepository::SPOTIFY_ACCESS_TOKEN);
-
         try {
             $this->spotifyRepository->getUserInfo();
-        } catch (SpotifyNeedsAuthorizationException|SpotifyWebAPIException) {
-            return false;
+
+            return true;
+        } catch (SpotifyNeedsAuthorizationException) {
+            //pass
+        } catch (SpotifyWebAPIException $e) {
+            if ($e->hasExpiredToken() === false) {
+                $this->logger->critical('unexpected response from spotify with auth token', ['exception' => $e]);
+            }
         }
 
-        return $accessToken !== null;
+        return false;
     }
 
     public function getPlaylists(): array
     {
         try {
             return $this->spotifyRepository->getPlaylists();
-        } catch (SpotifyNeedsAuthorizationException) {
-            return [];
+        } catch (\Exception $e) {
+            $this->logger->error('cannot getPlaylists', ['exception' => $e]);
         }
+
+        return [];
     }
 
-    public function getTrack(string $spotifyId): object
+    public function getTrack(string $spotifyId): ?object
     {
         try {
             return $this->spotifyRepositoryCacheManager->getTrack($spotifyId);
-        } catch (SpotifyNeedsAuthorizationException) {
-            //pass
-        } catch (SpotifyWebAPIException $e) {
-            if ($e->getMessage() === 'non existing id') {
-                //pass
-            } else {
-                throw $e;
-            }
+        } catch (\Exception $e) {
+            $this->logger->error('cannot getTrack', ['exception' => $e]);
         }
 
-        return new \StdClass;
+        return null;
     }
 
     public function getUserInfo(): ?object
     {
         try {
             return $this->spotifyRepository->getUserInfo();
-        } catch (SpotifyWebAPIException $e) {
-            $this->logger->log('error', 'something unexpected', ['exception' => $e]);
-        } catch (SpotifyNeedsAuthorizationException) {
+        } catch (\Exception $e) {
+            $this->logger->error('cannot getUserInfo', ['exception' => $e]);
         }
 
         return null;
@@ -91,8 +88,10 @@ class SpotifyExtension extends AbstractExtension
     {
         try {
             return $this->spotifyRepository->getCurrentPlayback();
-        } catch (SpotifyNeedsAuthorizationException) {
-            return null;
+        } catch (\Exception $e) {
+            $this->logger->error('cannot getCurrentPlayback', ['exception' => $e]);
         }
+
+        return null;
     }
 }

@@ -9,7 +9,7 @@
 
     <div class="row pt-3">
         {% for track in tag.tracks %}
-            {% include 'library/_track_card.html.twig' with {track: track, tagId: tag.id} only %}
+            {% include 'library/_track_card.html.twig' with {spotifyId: track.spotifyId, trackName: track.name, tagId: tag.id} only %}
         {% endfor %}
     </div>
 
