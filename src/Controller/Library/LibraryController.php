@@ -8,6 +8,7 @@ use App\Entity\Tag\TagFacade;
 use App\Entity\Tag\TagRepository;
 use App\Entity\Track\TrackRepository;
 use App\Spotify\SpotifyRepository;
+use App\Spotify\SpotifyRepositoryCacheManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,8 +20,7 @@ class LibraryController extends AbstractController
     public function __construct(
         private TagFacade $tagFacade,
         private TagRepository $tagRepository,
-        private SpotifyRepository $spotifyRepository
-
+        private SpotifyRepositoryCacheManager $spotifyRepositoryCacheManager
     )
     {
     }
@@ -55,7 +55,7 @@ class LibraryController extends AbstractController
         return $this->render(
             'library/track.html.twig',
             [
-                'track' => $this->spotifyRepository->getTrack($trackId),
+                'track' => $this->spotifyRepositoryCacheManager->getTrack($trackId),
             ]
         );
     }

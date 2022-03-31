@@ -4,9 +4,12 @@ declare(strict_types = 1);
 
 namespace App\Command\Library;
 
+use App\Entity\CacheItem\CacheItem;
+use App\Entity\CacheItem\CacheItemRepository;
 use App\Entity\Tag\Tag;
 use App\Entity\Tag\TagRepository;
 use App\Entity\Track\Track;
+use App\Entity\Track\TrackFacade;
 use App\Entity\Track\TrackRepository;
 use App\Entity\User\User;
 use App\Entity\User\UserRepository;
@@ -35,9 +38,9 @@ class TagLibraryCommand extends Command
         private UserRepository $userRepository,
         private SpotifyRepository $spotifyRepository,
         private SpotifyWebAPI $spotifyWebAPI,
-        private TrackRepository $trackRepository,
         private TagRepository $tagRepository,
         private LoggerInterface $logger,
+        private TrackFacade $trackFacade
     )
     {
         parent::__construct();
@@ -97,15 +100,7 @@ class TagLibraryCommand extends Command
             return;
         }
 
-        $track = $this->trackRepository->findById($spotifyTrack->id);
-
-        if ($track === null) {
-            $track = new Track(
-                $spotifyTrack->name,
-                $spotifyTrack->id
-            );
-            $this->trackRepository->save($track);
-        }
+        $track = $this->trackFacade->saveSpotifyTrack($spotifyTrack);
 
         $playlistTag->addTrack($track);
         $this->tagRepository->save($playlistTag);
