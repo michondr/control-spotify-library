@@ -4,7 +4,9 @@
 
     <h1>This is your tag collection</h1>
 
-    <div class="row">
+    <a class="btn btn-info" href="{{ path('load_user_library') }}">Refresh data from Spotify</a>
+
+    <div class="row pt-3">
         {% for tag in tags %}
             <div class="col-3">
                 <div class="card mb-4">

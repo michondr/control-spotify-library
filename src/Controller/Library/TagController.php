@@ -11,6 +11,7 @@ use App\Entity\Track\TrackRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
 use Webmozart\Assert\Assert;
@@ -29,9 +30,11 @@ class TagController extends AbstractController
     #[Route(path: '/tag/{tagId}/remove', name: 'tag.remove')]
     public function removeTag(string $tagId): Response
     {
-        $tag = $this->tagRepository->getById(Uuid::fromString($tagId));
+        $tag = $this->tagRepository->find(Uuid::fromString($tagId));
 
-        Assert::notNull($tag);
+        if ($tag === null) {
+            throw new NotFoundHttpException();
+        }
 
         $tag->clearTracks();
         $this->tagRepository->save($tag);
@@ -48,9 +51,6 @@ class TagController extends AbstractController
         $track = $this->trackFacade->getTrackIfNotExists($trackId);
         $tag = $this->tagFacade->getTagIfNotExists($tagName);
 
-        Assert::notNull($track);
-        Assert::notNull($tag);
-
         $tag->addTrack($track);
         $this->tagRepository->save($tag);
 
@@ -61,10 +61,11 @@ class TagController extends AbstractController
     public function addTrackToTagAction(Request $request, string $trackId, string $tagId): Response
     {
         $track = $this->trackFacade->getTrackIfNotExists($trackId);
-        $tag = $this->tagRepository->getById(Uuid::fromString($tagId));
+        $tag = $this->tagRepository->find(Uuid::fromString($tagId));
 
-        Assert::notNull($track);
-        Assert::notNull($tag);
+        if ($tag === null) {
+            throw new NotFoundHttpException();
+        }
 
         $tag->addTrack($track);
         $this->tagRepository->save($tag);
@@ -76,10 +77,11 @@ class TagController extends AbstractController
     public function removeTrackFromTagAction(Request $request, string $trackId, string $tagId): Response
     {
         $track = $this->trackRepository->findById($trackId);
-        $tag = $this->tagRepository->getById(Uuid::fromString($tagId));
+        $tag = $this->tagRepository->find(Uuid::fromString($tagId));
 
-        Assert::notNull($track);
-        Assert::notNull($tag);
+        if ($tag === null) {
+            throw new NotFoundHttpException();
+        }
 
         $tag->removeTrack($track);
         $this->tagRepository->save($tag);

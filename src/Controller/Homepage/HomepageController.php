@@ -4,9 +4,11 @@ declare(strict_types = 1);
 
 namespace App\Controller\Homepage;
 
+use App\Entity\Tag\TagFacade;
 use App\Entity\User\User;
 use App\Entity\User\UserAuthenticator;
 use App\Entity\User\UserRepository;
+use App\Spotify\Exception\SpotifyNeedsAuthorizationException;
 use App\Spotify\SpotifyRepository;
 use App\Twig\FlashEnum;
 use Psr\Log\LoggerInterface;
@@ -17,7 +19,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Routing\Annotation\Route;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 
 class HomepageController extends AbstractController
 {
@@ -32,7 +36,8 @@ class HomepageController extends AbstractController
         private RequestStack $requestStack,
         private SpotifyRepository $spotifyRepository,
         private UserRepository $userRepository,
-        private UserAuthenticator $userAuthenticator
+        private UserAuthenticator $userAuthenticator,
+        private TagFacade $tagFacade,
     )
     {
     }
@@ -123,6 +128,9 @@ class HomepageController extends AbstractController
 
         if ($user === null) {
             $user = new User($name);
+            $response = $this->redirectToRoute('load_user_library');
+        } else {
+            $response = $this->redirectToRoute('homepage');
         }
 
         $user->setLastLoggedInAt(new \DateTimeImmutable());
@@ -130,6 +138,28 @@ class HomepageController extends AbstractController
 
         $this->userRepository->save($user);
         $this->userAuthenticator->authenticateUser($user);
+
+        return $response;
+    }
+
+    #[Route(path: '/load-user-library', name: 'load_user_library')]
+    public function loadUserLibraryAction(Request $request): Response
+    {
+        try {
+            $userPlaylists = $this->spotifyRepository->getPlaylists();
+        } catch (SpotifyNeedsAuthorizationException) {
+            $this->addFlash(FlashEnum::WARNING, 'You must be logged in for this action');
+
+            return $this->redirectToRoute('homepage');
+        }
+
+        $this->tagFacade->createFreshFromPlaylists($userPlaylists);
+
+        $process = Process::fromShellCommandline('bin/console csl:tag:load-by-playlists-for-user $USERNAME', '../');
+        $process->start(env: ['USERNAME' => $this->getUser()->getUserIdentifier()]);
+
+        $message = sprintf('All %d tags successfully created from playlists, your library will be fetched shorthly', count($userPlaylists));
+        $this->addFlash(FlashEnum::SUCCESS, $message);
 
         return $this->redirectToRoute('homepage');
     }

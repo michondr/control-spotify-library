@@ -32,9 +32,9 @@ class SpotifyRepository
         return $this->api->getMyCurrentPlaybackInfo();
     }
 
-    public function getPlaylists(): array
+    public function getPlaylists(?string $accessToken = null): array
     {
-        $this->authenticateApi();
+        $this->authenticateApi($accessToken);
 
         $playlists = $this->api->getMyPlaylists(['limit' => 50])->items;
         usort($playlists, fn($a, $b) => $a->name <=> $b->name);
@@ -49,9 +49,9 @@ class SpotifyRepository
         return $this->api->getPlaylist($playlistId, ['limit' => 200]);
     }
 
-    public function getPlaylistTracks(string $playlistId): array
+    public function getPlaylistTracks(string $playlistId, ?string $accessToken = null): array
     {
-        $this->authenticateApi();
+        $this->authenticateApi($accessToken);
         $playlistTracks = [];
         $offset = 0;
 

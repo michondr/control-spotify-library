@@ -59,14 +59,15 @@ class TagLibraryCommand extends Command
         $user = $this->userRepository->findByName($userName);
 
         if ($user === null) {
-            $this->io->error('user "%s" does not exist', $userName);
+            $this->io->error(sprintf('user "%s" does not exist', $userName));
 
             return 1;
         }
 
         $this->spotifyWebAPI->setAccessToken($user->getAccessToken());
 
-        foreach ($this->spotifyRepository->getPlaylists() as $playlist) {
+        foreach ($this->spotifyRepository->getPlaylists($user->getAccessToken()) as $playlist) {
+            $this->logger->info('working on '.$playlist->name);
             $this->io->info(sprintf('processing playlist %s', $playlist->name));
             $this->processPlaylist($playlist->id, $playlist->name, $user);
         }
@@ -76,7 +77,7 @@ class TagLibraryCommand extends Command
 
     private function processPlaylist(string $id, string $playlistName, User $user): void
     {
-        $playlistTracks = $this->spotifyRepository->getPlaylistTracks($id);
+        $playlistTracks = $this->spotifyRepository->getPlaylistTracks($id, $user->getAccessToken());
 
         $this->io->writeln(sprintf('has %d tracks', count($playlistTracks)));
 

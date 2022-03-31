@@ -26,7 +26,6 @@ class SpotifyExtension extends AbstractExtension
     public function getFunctions()
     {
         return [
-            new TwigFunction('getPlaylists', [$this, 'getPlaylists']),
             new TwigFunction('getTrack', [$this, 'getTrack']),
             new TwigFunction('getUserInfo', [$this, 'getUserInfo']),
             new TwigFunction('getCurrentPlayback', [$this, 'getCurrentPlayback']),
@@ -49,17 +48,6 @@ class SpotifyExtension extends AbstractExtension
         }
 
         return false;
-    }
-
-    public function getPlaylists(): array
-    {
-        try {
-            return $this->spotifyRepository->getPlaylists();
-        } catch (\Exception $e) {
-            $this->logger->error('cannot getPlaylists', ['exception' => $e]);
-        }
-
-        return [];
     }
 
     public function getTrack(string $spotifyId): ?object

@@ -23,18 +23,19 @@ class TagRepository extends ServiceEntityRepository
         return $tag;
     }
 
+    public function saveTagList(TagList $tagList)
+    {
+        foreach ($tagList->toArray() as $tag) {
+            $this->getEntityManager()->persist($tag);
+        }
+
+        $this->getEntityManager()->flush();
+    }
+
     public function remove(Tag $tag)
     {
         $this->getEntityManager()->remove($tag);
         $this->getEntityManager()->flush();
-    }
-
-    public function getById(Uuid $id): Tag
-    {
-        $tag = $this->find($id);
-        Assert::notNull($tag);
-
-        return $tag;
     }
 
     public function findByNameAndUser(string $name, User $owner): ?Tag

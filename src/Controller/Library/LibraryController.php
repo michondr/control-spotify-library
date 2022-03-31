@@ -11,6 +11,7 @@ use App\Spotify\SpotifyRepository;
 use App\Spotify\SpotifyRepositoryCacheManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
 
@@ -39,12 +40,16 @@ class LibraryController extends AbstractController
     #[Route(path: '/tags/{id}', name: 'tags.detail')]
     public function detailTagAction(string $id): Response
     {
-        $id = Uuid::fromString($id);
+        $tag = $this->tagRepository->find(Uuid::fromString($id));
+
+        if ($tag === null) {
+            throw new NotFoundHttpException();
+        }
 
         return $this->render(
             'tag/detail.html.twig',
             [
-                'tag' => $this->tagRepository->getById($id),
+                'tag' => $tag,
             ]
         );
     }

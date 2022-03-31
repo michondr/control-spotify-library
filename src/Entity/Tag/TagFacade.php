@@ -49,4 +49,20 @@ class TagFacade
 
         return $newTag;
     }
+
+    public function createFreshFromPlaylists(array $playlists)
+    {
+        $user = $this->userProvider->getUser();
+        $allUserTags = $this->getUserTags();
+
+        $tags = [];
+
+        foreach ($playlists as $playlist) {
+            if ($allUserTags->exists(fn($key, Tag $t) => $t->getName() === $playlist->name) === false) {
+                $tags[] = new Tag($playlist->name, $user);
+            }
+        }
+
+        $this->tagRepository->saveTagList(new TagList($tags));
+    }
 }
