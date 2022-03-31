@@ -156,6 +156,7 @@ class HomepageController extends AbstractController
         $this->tagFacade->createFreshFromPlaylists($userPlaylists);
 
         $process = Process::fromShellCommandline('bin/console csl:tag:load-by-playlists-for-user $USERNAME', '../');
+        $process->setOptions(['create_new_console' => true]);
         $process->start(env: ['USERNAME' => $this->getUser()->getUserIdentifier()]);
 
         $message = sprintf('All %d tags successfully created from playlists, your library will be fetched shorthly', count($userPlaylists));
