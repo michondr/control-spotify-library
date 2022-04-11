@@ -12,7 +12,9 @@ use App\Entity\Track\TrackFacade;
 use App\Entity\Track\TrackList;
 use App\Spotify\Devices\PreferredDeviceProvider;
 use App\Twig\FlashEnum;
+use Psr\Log\LoggerInterface;
 use SpotifyWebAPI\SpotifyWebAPI;
+use SpotifyWebAPI\SpotifyWebAPIException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +26,7 @@ class PlayController extends AbstractController
     public function __construct(
         private SpotifyWebAPI $spotifyWebAPI,
         private PreferredDeviceProvider $preferredDeviceProvider,
+        private LoggerInterface $logger,
     )
     {
     }
@@ -52,8 +55,16 @@ class PlayController extends AbstractController
     {
         $trackIds = $request->query->all('tracks');
 
-        foreach ($trackIds as $id) {
-            $this->spotifyWebAPI->queue($id);
+        try {
+            foreach ($trackIds as $id) {
+                $this->spotifyWebAPI->queue($id);
+            }
+        } catch (SpotifyWebAPIException $e) {
+            if ($e->getMessage() === 'Restricted device') {
+                $this->addFlash(FlashEnum::WARNING, 'You have no active device in Spotify. Open Spotify on your phone or computer.');
+            } else {
+                $this->logger->error('could not queue songs', ['exception' => $e]);
+            }
         }
 
         return $this->redirect($request->headers->get('referer'));
