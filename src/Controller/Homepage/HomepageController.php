@@ -14,6 +14,7 @@ use App\Twig\FlashEnum;
 use Psr\Log\LoggerInterface;
 use SpotifyWebAPI\Session;
 use SpotifyWebAPI\SpotifyWebAPIAuthException;
+use SpotifyWebAPI\SpotifyWebAPIException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -121,7 +122,16 @@ class HomepageController extends AbstractController
         $this->requestStack->getSession()->set(self::SPOTIFY_ACCESS_TOKEN, $accessToken);
         $this->requestStack->getSession()->set(self::SPOTIFY_REFRESH_TOKEN, $refreshToken);
 
-        $spotifyUser = $this->spotifyRepository->getUserInfo($accessToken);
+        try {
+            $spotifyUser = $this->spotifyRepository->getUserInfo($accessToken);
+        } catch (SpotifyWebAPIException $e) {
+            if ($e->getMessage() === 'User not registered in the Developer Dashboard') {
+                return $this->redirectToRoute('no_dev_mode');
+            }
+
+            throw $e;
+        }
+
         $name = $spotifyUser->id;
 
         $user = $this->userRepository->findByName($name);
