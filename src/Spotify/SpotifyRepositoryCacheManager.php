@@ -22,13 +22,14 @@ class SpotifyRepositoryCacheManager
     public function getTrack(string $spotifyId): object
     {
         $trackInDb = $this->trackRepository->findById($spotifyId);
-        $cachedData = $trackInDb->getCacheData();
 
-        if ($cachedData === null) {
+        if ($trackInDb === null || $trackInDb->getCacheData() === null) {
             $spotifyTrack = $this->spotifyRepository->getTrack($spotifyId);
 
             return $this->trackFacade->saveSpotifyTrack($spotifyTrack);
         }
+
+        $cachedData = $trackInDb->getCacheData();
 
         $now = new \DateTimeImmutable();
         if ($cachedData->getExpiresAt() < $now) {
